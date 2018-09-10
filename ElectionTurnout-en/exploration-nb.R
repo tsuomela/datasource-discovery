@@ -5,7 +5,7 @@ library(lubridate)
 
 # 1. import data
 
-elections <- read_csv("VoterTurnoutData-1980-2014.csv")
+elections <- read_csv("data/VoterTurnoutData-1980-2014.csv")
 glimpse(elections)
 str(elections)
 
