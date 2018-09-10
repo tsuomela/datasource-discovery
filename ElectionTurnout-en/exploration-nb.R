@@ -64,3 +64,79 @@ election.2014 %>%
   filter(Turnout_Rates_VAP_Highest_Office > 35) %>%
   arrange(desc(Turnout_Rates_VAP_Highest_Office)) %>%
   View()
+
+
+# 4. let's at a time series in elections df
+
+pa.elections <- elections %>%
+  filter(State == "Pennsylvania")
+
+ggplot(pa.elections,
+    aes(x = Year, y = Turnout_Rates_VAP_Highest_Office)
+  ) +
+  geom_line()
+
+# One thing to notice is the swing in turnout between presidential and off-year elections.
+# 5. How can we filter to only have presidential cycles.
+
+# Setup variables to contain the years we want.
+pres.years <- c(1980, 1984, 1988, 1992, 1996, 2000, 2004, 2008, 2012)
+off.years <- c(1982, 1986, 1990, 1994, 1998, 2002, 2006, 2010, 2014)
+
+elections %>% # testing to see if the outputs make sense
+  filter(Year %in% pres.years) %>%
+  count(Year)
+
+elections.pres <- elections %>%  # assigning to a data frame
+  filter(Year %in% pres.years)
+
+# Graph for a single state
+
+elections.pres %>%
+  filter(State == "Minnesota") %>%
+  ggplot(
+    aes(x = Year, y = Turnout_Rates_VAP_Highest_Office)) +
+  geom_line()
+
+# now let's put all of the states into the plot
+
+elections.pres %>%
+  ggplot(
+    aes(x = Year, y = Turnout_Rates_VAP_Highest_Office, color = State)
+  ) +
+  geom_line()
+
+# that graph is too busy, let's facet
+
+elections.pres %>%
+  ggplot(
+    aes(x = Year, y = Turnout_Rates_VAP_Highest_Office)
+  ) +
+  geom_line() +
+  facet_wrap(vars(State))
+
+# let's sort by average turnout across the years
+
+elections.pres %>%
+  group_by(State) %>%
+  summarise(Avg_Turnout = mean(Turnout_Rates_VAP_Highest_Office)) %>%
+  arrange(desc(Avg_Turnout))
+
+elections.pres %>%
+  group_by(State) %>%
+  mutate(Avg_Turnout = mean(Turnout_Rates_VAP_Highest_Office)) %>%
+  View()
+
+elections.pres <- elections.pres %>%
+  group_by(State) %>%
+  mutate(Avg_Turnout = mean(Turnout_Rates_VAP_Highest_Office))
+
+
+# can we use fct_reorder in the facet
+
+elections.pres %>%
+  ggplot(
+    aes(x = Year, y = Turnout_Rates_VAP_Highest_Office)
+  ) +
+  geom_line() +
+  facet_wrap(vars(fct_reorder(State, Avg_Turnout)))
